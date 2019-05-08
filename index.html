@@ -12,73 +12,143 @@
         
     </div>
     <main>
+        <style>
+            
+        </style>
         <div  id = "mainXXX" class="wrapper">
-
+            <!-- <kbd class="key">Q</kbd> -->
         </div>
     </main>
     <footer>
 
     </footer>
     <script>
-        var keys = {
-            '0':{0:'q',1:'w',2:'e',3:'r',4:'t',5:'y',6:'u',7:'i',8:'o',9:'p',length:10},
-            '1':{0:'a',1:'s',2:'d',3:'f',4:'g',5:'h',6:'j',7:'k',8:'l',length:9}, 
-            '2':{0:'z',1:'x',2:'c',3:'v',4:'b',5:'n',6:'m',length:7},
-            "length":3
-        };
-        var hash = {
-            "q":"www.qq.com",
-            "w":"www.weibo.com",
-            "e":"ele.me",
-            "r":"renren.com",
-            "t":"tianya.com",
-            "y":"youtube.com",
-            "u":"uc.com",
-            "i":"iqiyi.com",
-            "o":"opera.com",
-            "p":undefined,
-            "a":"alibaba.com",
-            "s":"sohu.com",
-            "z":"zhihu.com",
-            "m":"www.mcdonalds.com"
-        };
-        console.log(localStorage.getItem("urlList") || '');
-        if(localStorage.getItem("urlList") != null){
-            urlList = JSON.parse(localStorage.getItem("urlList") || '');
-            hash = urlList;
+        // 1. 初始化
+        var hashA = init();
+        var keys = hashA["keys"];
+        var hash = hashA['hash'];
+
+
+        
+
+        // 2. 生成键盘
+        createKbd();
+
+        //3. 监听键盘事件
+        listToUser();
+        
+
+
+        // 4. 以下是工具函数
+        function init(){
+            keys = {
+                '0':{0:'q',1:'w',2:'e',3:'r',4:'t',5:'y',6:'u',7:'i',8:'o',9:'p',length:10},
+                '1':{0:'a',1:'s',2:'d',3:'f',4:'g',5:'h',6:'j',7:'k',8:'l',length:9}, 
+                '2':{0:'z',1:'x',2:'c',3:'v',4:'b',5:'n',6:'m',length:7},
+                "length":3
+            };
+            var hash = {
+                "q":"www.qq.com",
+                "w":"www.weibo.com",
+                "e":"ele.me",
+                "r":"renren.com",
+                "t":"tianya.com",
+                "y":"youtube.com",
+                "u":"uc.com",
+                "i":"iqiyi.com",
+                "o":"opera.com",
+                "p":undefined,
+                "a":"alibaba.com",
+                "s":"sohu.com",
+                "z":"zhihu.com",
+                "m":"www.mcdonalds.com"
+            };
+            console.log(localStorage.getItem("urlList") || '');
+            if(localStorage.getItem("urlList") != null){
+                var urlList = JSON.parse(getStorage("urlList") || '');
+                hash = urlList;
+            }
+            return {
+                keys:keys,
+                hash:hash
+            }
         }
-        index = 0;
-        while(index < keys["length"]){
-            div1 = document.createElement("div");
-            mainXXX.appendChild(div1);  
-            index2 = 0;
-            row = keys[index];
-            while(index2 < row["length"]){
-                // kbd1 = document.createElement("kbd");
-                // kbd1 = document.createElement("kbd");
-                // kbd1.textContent(row[index2]);
-                // kbd1.textContent(row[index2]);
-                kbdXXXX = document.createElement("kbd");
-                kbdXXXX.textContent = row[index2];
-                btnXXX = document.createElement("button");
-                btnXXX.textContent = "编辑";
-                btnXXX.id = row[index2];
-                btnXXX.onclick = function(e){
-                    key = e['target']['id'];
-                    newUrl = prompt("输入新的网址");
-                    hash[key] = newUrl;
-                    localStorage.setItem("urlList",JSON.stringify(hash));
-                }
-                kbdXXXX.appendChild(btnXXX);
-                div1.appendChild(kbdXXXX);
-                index2++;
-            }  
-            index++
+        //获取缓存
+        function getStorage(name){
+            return localStorage.getItem(name);
         }
-        document.onkeypress = function(event){
-            var key = event.key;
-            var url = hash[key];
-            window.open("http://"+url);
+        //创建标签并设置属性
+        function tag(tagName,attributes){
+            var element = document.createElement(tagName);
+            for(var k in attributes){
+                element[k] = attributes[k];
+            }
+            return element;
+        }
+        function createKbd(){
+            var index = 0;
+            while(index < keys["length"]){
+                var div1 = tag("div");
+                mainXXX.appendChild(div1);  
+                var index2 = 0;
+                var row = keys[index];
+                while(index2 < row["length"]){
+                    kbdXXXX = tag("kbd",{className:"key"});
+                    // kbdXXXX.className = "key";
+                    btnXXX = tag("button",{textContent:"编辑"});
+                    // btnXXX.textContent = "编辑";
+                    btnXXX.id = row[index2];
+
+
+                    var span = document.createElement("span");
+                    span.className = "text";
+                    span.textContent = row[index2];
+
+
+                    kbdXXXX.appendChild(span);
+
+
+                    var img = document.createElement("img");
+                    if( hash[row[index2]]){
+                        img.src ="http://"+ hash[row[index2]]+"/favicon.ico";
+                    }else{
+                        img.src ="img/CIRCLE.png";
+                    }
+                    img.onerror = function(e){
+                        e.target.src ="img/CIRCLE.png";
+                    }
+                    img.className = "icon";
+
+
+                    kbdXXXX.appendChild(img);
+                    btnXXX.onclick = function(e){
+                        var key = e['target']['id'];
+                        var newUrl = prompt("输入新的网址");
+                        hash[key] = newUrl;
+                        localStorage.setItem("urlList",JSON.stringify(hash));
+                        var btn2 = event['target'];
+                        var img2 = btn2.previousSibling
+                        console.log(newUrl);
+                        img2.src = "http://"+ newUrl+"/favicon.ico";
+                        img.onerror = function(e){
+                            e.target.src ="img/CIRCLE.png";
+                        }
+                    }
+                    kbdXXXX.appendChild(btnXXX);
+                    div1.appendChild(kbdXXXX);
+                    index2++;
+                }  
+                index++
+            }
+        }
+        function listToUser(){
+            document.onkeypress = function(event){
+                console.log(event);
+                var key = event.key;
+                var url = hash[key];
+            
+                window.open("http://"+url);
+            }
         }
     </script>
 </body>
